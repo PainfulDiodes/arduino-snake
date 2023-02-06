@@ -49,11 +49,21 @@ Adafruit_FT6206 ts = Adafruit_FT6206();
 #define CELL_SIZE 10
 
 int motion = MOTION_NONE;
-int x_cell_pos = X_START_CELL;
-int y_cell_pos = Y_START_CELL;
 
+// snake is held in 2 arrays for coordinates. First element is the head of the snake. 
+#define MAX_LENGTH 100
+int x_cell_pos[MAX_LENGTH+1];
+int y_cell_pos[MAX_LENGTH+1];
+int length = 1;
+
+// how many moves before growing the snake
+#define COUNT_TO_GROW 20
+int growCount = COUNT_TO_GROW;
 
 void setup() {
+x_cell_pos[0] = X_START_CELL;
+y_cell_pos[0] = Y_START_CELL;
+
   Serial.begin(9600);
   Serial.println("ILI9341"); 
  
@@ -83,7 +93,6 @@ void setup() {
 
   setCell(x_cell_pos,y_cell_pos);
 }
-
 
 void loop(void) {
   // See if there's any  touch data for us
@@ -146,34 +155,46 @@ void unsetCell(int x, int y) {
 }
 
 void move() {
-  int x = x_cell_pos;
-  int y = y_cell_pos;
+
+  if(motion == MOTION_NONE) return;
+
+  // stack push
+  for(int ptr = length; ptr > 0; ptr--) {
+    x_cell_pos[ptr] = x_cell_pos[ptr  -1];
+    y_cell_pos[ptr] = y_cell_pos[ptr-1];
+  }
 
   switch (motion) {
     case MOTION_LEFT:
-      x_cell_pos--;
+      x_cell_pos[0]--;
       break;
     case MOTION_RIGHT:
-      x_cell_pos++;
+      x_cell_pos[0]++;
       break;
     case MOTION_UP:
-      y_cell_pos--;
+      y_cell_pos[0]--;
       break;
     case MOTION_DOWN:
-      y_cell_pos++;
+      y_cell_pos[0]++;
       break;
-    case MOTION_NONE:
-      return;
     default:
       break;
   }
 
-  if(x_cell_pos < 0)  x_cell_pos = X_MAX_CELL;
-  if(x_cell_pos > X_MAX_CELL) x_cell_pos = 0;
-  if(y_cell_pos < 0)  y_cell_pos = Y_MAX_CELL;
-  if(y_cell_pos > Y_MAX_CELL) y_cell_pos = 0;
+  if(x_cell_pos[0] < 0)  x_cell_pos[0] = X_MAX_CELL;
+  if(x_cell_pos[0] > X_MAX_CELL) x_cell_pos[0] = 0;
+  if(y_cell_pos[0] < 0)  y_cell_pos[0] = Y_MAX_CELL;
+  if(y_cell_pos[0] > Y_MAX_CELL) y_cell_pos[0] = 0;
 
-  unsetCell(x,y);
-  setCell(x_cell_pos,y_cell_pos);
+  // paint the new head position
+  setCell(x_cell_pos[0],y_cell_pos[0]);
+
+  if(--growCount<=0) {
+    growCount = COUNT_TO_GROW;
+    length++;
+  }
+  else {
+    unsetCell(x_cell_pos[length],y_cell_pos[length]);
+  }
 
 }
