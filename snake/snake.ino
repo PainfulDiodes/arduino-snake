@@ -56,13 +56,18 @@ int x_cell_pos[MAX_LENGTH+1];
 int y_cell_pos[MAX_LENGTH+1];
 int length = 1;
 
+// milliseconds between moves
+#define MOVE_TIME_MILLIS 250
+unsigned long lastMoveMillis;
+
 // how many moves before growing the snake
 #define COUNT_TO_GROW 20
 int growCount = COUNT_TO_GROW;
 
 void setup() {
-x_cell_pos[0] = X_START_CELL;
-y_cell_pos[0] = Y_START_CELL;
+  x_cell_pos[0] = X_START_CELL;
+  y_cell_pos[0] = Y_START_CELL;
+  lastMoveMillis = millis();
 
   Serial.begin(9600);
   Serial.println("ILI9341"); 
@@ -106,44 +111,61 @@ void loop(void) {
     p.y = map(p.y, 0, X_MAX_PX, X_MAX_PX, 0);
     int y = tft.height() - p.x;
     int x = p.y;
+    
+    int zone = 0;
 
-    if(     x <  X_THIRD     && y >= Y_THIRD     && y <  Y_TWO_THIRD) motion = MOTION_LEFT;
-    else if(x >= X_TWO_THIRD && y >= Y_THIRD     && y <  Y_TWO_THIRD) motion = MOTION_RIGHT;
-    else if(x >= X_THIRD     && x <  X_TWO_THIRD && y >= Y_TWO_THIRD) motion = MOTION_DOWN;
-    else if(x >= X_THIRD     && x <  X_TWO_THIRD && y <  Y_THIRD    ) motion = MOTION_UP;
-    else                                                              motion = MOTION_NONE;
+    if(y < Y_THIRD) {
+      if(x < X_THIRD) zone = 1;
+      else if(x < X_TWO_THIRD) zone = 2;
+      else zone = 3;
+    }
+    else if(y < Y_TWO_THIRD) {
+      if(x < X_THIRD) zone = 4;
+      else if(x < X_TWO_THIRD) zone = 5;
+      else zone = 6;
+    }
+    else {
+      if(x < X_THIRD) zone = 7;
+      else if(x < X_TWO_THIRD) zone = 8;
+      else zone = 9;
+    }
+
+    Serial.print("zone");
+    Serial.println(zone);
 
     switch (motion) {
       case MOTION_LEFT:
-        Serial.print("Left");
+        if(zone==2) motion=MOTION_UP;
+        else if(zone==8) motion=MOTION_DOWN;
         break;
       case MOTION_RIGHT:
-        Serial.print("Right");
+        if(zone==2) motion=MOTION_UP;
+        else if(zone==8) motion=MOTION_DOWN;
         break;
       case MOTION_UP:
-        Serial.print("Up");
+        if(zone==4) motion=MOTION_LEFT;
+        else if(zone==6) motion=MOTION_RIGHT;
         break;
       case MOTION_DOWN:
-        Serial.print("Down");
+        if(zone==4) motion=MOTION_LEFT;
+        else if(zone==6) motion=MOTION_RIGHT;
         break;
       case MOTION_NONE:
-        Serial.print("None");
+        if(zone==2) motion=MOTION_UP;
+        else if(zone==4) motion=MOTION_LEFT;
+        else if(zone==6) motion=MOTION_RIGHT;
+        else if(zone==8) motion=MOTION_DOWN;
         break;
       default:
         break;
-    }
-
-    Serial.print("\t");
-    Serial.print(x);
-    Serial.print("\t");
-    Serial.print(y);
-    Serial.print("\n");
-  
+    }  
   }
 
-  move();
-  delay(50);
-  
+  if(millis()-lastMoveMillis >= MOVE_TIME_MILLIS) {
+    move();
+    lastMoveMillis = millis();
+  }
+
 }
 
 void setCell(int x, int y) {
