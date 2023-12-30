@@ -49,6 +49,7 @@ Adafruit_FT6206 ts = Adafruit_FT6206();
 #define CELL_SIZE 10
 
 int motion = MOTION_NONE;
+bool alive = true;
 
 // snake is held in 2 arrays for coordinates. First element is the head of the snake. 
 #define MAX_LENGTH 100
@@ -57,7 +58,7 @@ int y_cell_pos[MAX_LENGTH+1];
 int length = 5;
 
 // milliseconds between moves
-#define MOVE_TIME_MILLIS 250
+#define MOVE_TIME_MILLIS 200
 unsigned long lastMoveMillis;
 
 // how many moves before growing the snake
@@ -174,7 +175,7 @@ void loop(void) {
     }  
   }
 
-  if(millis()-lastMoveMillis >= MOVE_TIME_MILLIS) {
+  if(alive && millis()-lastMoveMillis >= MOVE_TIME_MILLIS) {
     move();
     lastMoveMillis = millis();
   }
@@ -188,9 +189,9 @@ void setCell(int x, int y, unsigned int col) {
 void drawSnake() {
   int c = 1;
   for(int i=0; i<length; i++) {
-    if(i==0) setCell(x_cell_pos[i],y_cell_pos[i],ILI9341_DARKGREEN);
-    else if(c==1) setCell(x_cell_pos[i],y_cell_pos[i],ILI9341_GREEN);
-    else setCell(x_cell_pos[i],y_cell_pos[i],ILI9341_YELLOW);
+    if(i==0) setCell(x_cell_pos[i],y_cell_pos[i], alive ? ILI9341_DARKGREEN : ILI9341_DARKGREY);
+    else if(c==1) setCell(x_cell_pos[i],y_cell_pos[i], alive ? ILI9341_GREEN : ILI9341_DARKGREY);
+    else setCell(x_cell_pos[i],y_cell_pos[i],alive ? ILI9341_YELLOW : ILI9341_LIGHTGREY);
     c=-c;
   }
   setCell(x_cell_pos[length],y_cell_pos[length],ILI9341_BLACK);
@@ -224,30 +225,32 @@ void move() {
   if(new_x < 0 || new_x > X_MAX_CELL-1 || new_y < 0 || new_y > Y_MAX_CELL-1)
   { // crashed
     motion = MOTION_NONE;
-    return;
+    alive = false;
   }
 
   //check for snake cross
   for(int i = 0; i < length; i++) {
     if(new_x == x_cell_pos[i] && new_y == y_cell_pos[i]) {
       motion = MOTION_NONE;
-      return;
+      alive = false;
     }
   }
 
-  // stack push
-  for(int i = length; i > 0; i--) {
-    x_cell_pos[i] = x_cell_pos[i-1];
-    y_cell_pos[i] = y_cell_pos[i-1];
-  }
+  if(motion!=MOTION_NONE) {
+    // stack push
+    for(int i = length; i > 0; i--) {
+      x_cell_pos[i] = x_cell_pos[i-1];
+      y_cell_pos[i] = y_cell_pos[i-1];
+    }
 
-  // add new position to top
-  x_cell_pos[0] = new_x;
-  y_cell_pos[0] = new_y;
+    // add new position to top
+    x_cell_pos[0] = new_x;
+    y_cell_pos[0] = new_y;
 
-  if(--growCount<=0) {
-    growCount = COUNT_TO_GROW;
-    length++;
+    if(--growCount<=0) {
+      growCount = COUNT_TO_GROW;
+      length++;
+    }
   }
 
   drawSnake();
