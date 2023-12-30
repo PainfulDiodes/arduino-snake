@@ -213,7 +213,7 @@ void move() {
       break;
   }
 
-  if(new_x < 0 || new_x > X_MAX_CELL || new_y < 0 || new_y > Y_MAX_CELL)
+  if(new_x < 0 || new_x > X_MAX_CELL-1 || new_y < 0 || new_y > Y_MAX_CELL-1)
   { // crashed
     motion = MOTION_NONE;
     return;
