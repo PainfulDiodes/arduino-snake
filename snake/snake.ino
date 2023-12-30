@@ -213,11 +213,21 @@ void move() {
       break;
   }
 
+  // check for boundary collision
   if(new_x < 0 || new_x > X_MAX_CELL-1 || new_y < 0 || new_y > Y_MAX_CELL-1)
   { // crashed
     motion = MOTION_NONE;
     return;
   }
+
+  //check for snake cross
+  for(int i = 0; i < length; i++) {
+    if(new_x == x_cell_pos[i] && new_y == y_cell_pos[i]) {
+      motion = MOTION_NONE;
+      return;
+    }
+  }
+
 
   // stack push
   for(int ptr = length; ptr > 0; ptr--) {
