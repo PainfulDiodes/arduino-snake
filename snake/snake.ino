@@ -104,12 +104,12 @@ void setupScreen() {
 }
 
 void setupSnake() {
-  for(int i=0; i<length; i++)
+  for(int i=0; i<=length; i++) // the position after the length is used to clean up the prior position of the snake
   {
     x_cell_pos[i] = X_START_CELL-i;
     y_cell_pos[i] = Y_START_CELL;
-    setCell(x_cell_pos[i],y_cell_pos[i]);
   }
+  drawSnake();
 }
 
 void loop(void) {
@@ -181,12 +181,19 @@ void loop(void) {
 
 }
 
-void setCell(int x, int y) {
-  tft.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, ILI9341_GREEN);
+void setCell(int x, int y, unsigned int col) {
+  tft.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, col);
 }
 
-void unsetCell(int x, int y) {
-  tft.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, ILI9341_BLACK);
+void drawSnake() {
+  int c = 1;
+  for(int i=0; i<length; i++) {
+    if(i==0) setCell(x_cell_pos[i],y_cell_pos[i],ILI9341_DARKGREEN);
+    else if(c==1) setCell(x_cell_pos[i],y_cell_pos[i],ILI9341_GREEN);
+    else setCell(x_cell_pos[i],y_cell_pos[i],ILI9341_YELLOW);
+    c=-c;
+  }
+  setCell(x_cell_pos[length],y_cell_pos[length],ILI9341_BLACK);
 }
 
 void move() {
@@ -228,26 +235,21 @@ void move() {
     }
   }
 
-
   // stack push
-  for(int ptr = length; ptr > 0; ptr--) {
-    x_cell_pos[ptr] = x_cell_pos[ptr  -1];
-    y_cell_pos[ptr] = y_cell_pos[ptr-1];
+  for(int i = length; i > 0; i--) {
+    x_cell_pos[i] = x_cell_pos[i-1];
+    y_cell_pos[i] = y_cell_pos[i-1];
   }
 
+  // add new position to top
   x_cell_pos[0] = new_x;
   y_cell_pos[0] = new_y;
-
-
-  // paint the new head position
-  setCell(x_cell_pos[0],y_cell_pos[0]);
 
   if(--growCount<=0) {
     growCount = COUNT_TO_GROW;
     length++;
   }
-  else {
-    unsetCell(x_cell_pos[length],y_cell_pos[length]);
-  }
+
+  drawSnake();
 
 }
