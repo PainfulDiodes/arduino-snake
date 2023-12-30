@@ -65,13 +65,18 @@ unsigned long lastMoveMillis;
 int growCount = COUNT_TO_GROW;
 
 void setup() {
-  x_cell_pos[0] = X_START_CELL;
-  y_cell_pos[0] = Y_START_CELL;
-  lastMoveMillis = millis();
-
   Serial.begin(9600);
+  
+  setupScreen();
+
+  setupSnake();
+
+  lastMoveMillis = millis();
+}
+
+void setupScreen() {
+  
   Serial.println("ILI9341"); 
- 
   tft.begin();
 
   if (!ts.begin(40)) { 
@@ -93,10 +98,15 @@ void setup() {
   x = tft.readcommand8(ILI9341_RDSELFDIAG);
   Serial.print("Self Diagnostic: 0x"); Serial.println(x, HEX); 
 
-   tft.fillScreen(ILI9341_BLACK);
-   tft.setRotation(1); 
+  tft.fillScreen(ILI9341_BLACK);
+  tft.setRotation(1); 
 
-  setCell(x_cell_pos,y_cell_pos);
+}
+
+void setupSnake() {
+  x_cell_pos[0] = X_START_CELL;
+  y_cell_pos[0] = Y_START_CELL;
+  setCell(x_cell_pos[0],y_cell_pos[0]);
 }
 
 void loop(void) {
