@@ -190,33 +190,41 @@ void move() {
 
   if(motion == MOTION_NONE) return;
 
+  int new_x = x_cell_pos[0];
+  int new_y = y_cell_pos[0];
+
+  switch (motion) {
+    case MOTION_LEFT:
+     new_x--;
+      break;
+    case MOTION_RIGHT:
+      new_x++;
+      break;
+    case MOTION_UP:
+      new_y--;
+      break;
+    case MOTION_DOWN:
+      new_y++;
+      break;
+    default:
+      break;
+  }
+
+  if(new_x < 0 || new_x > X_MAX_CELL || new_y < 0 || new_y > Y_MAX_CELL)
+  { // crashed
+    motion = MOTION_NONE;
+    return;
+  }
+
   // stack push
   for(int ptr = length; ptr > 0; ptr--) {
     x_cell_pos[ptr] = x_cell_pos[ptr  -1];
     y_cell_pos[ptr] = y_cell_pos[ptr-1];
   }
 
-  switch (motion) {
-    case MOTION_LEFT:
-      x_cell_pos[0]--;
-      break;
-    case MOTION_RIGHT:
-      x_cell_pos[0]++;
-      break;
-    case MOTION_UP:
-      y_cell_pos[0]--;
-      break;
-    case MOTION_DOWN:
-      y_cell_pos[0]++;
-      break;
-    default:
-      break;
-  }
+  x_cell_pos[0] = new_x;
+  y_cell_pos[0] = new_y;
 
-  if(x_cell_pos[0] < 0)  x_cell_pos[0] = X_MAX_CELL;
-  if(x_cell_pos[0] > X_MAX_CELL) x_cell_pos[0] = 0;
-  if(y_cell_pos[0] < 0)  y_cell_pos[0] = Y_MAX_CELL;
-  if(y_cell_pos[0] > Y_MAX_CELL) y_cell_pos[0] = 0;
 
   // paint the new head position
   setCell(x_cell_pos[0],y_cell_pos[0]);
