@@ -54,7 +54,7 @@ int motion = MOTION_NONE;
 #define MAX_LENGTH 100
 int x_cell_pos[MAX_LENGTH+1];
 int y_cell_pos[MAX_LENGTH+1];
-int length = 1;
+int length = 5;
 
 // milliseconds between moves
 #define MOVE_TIME_MILLIS 250
@@ -104,9 +104,12 @@ void setupScreen() {
 }
 
 void setupSnake() {
-  x_cell_pos[0] = X_START_CELL;
-  y_cell_pos[0] = Y_START_CELL;
-  setCell(x_cell_pos[0],y_cell_pos[0]);
+  for(int i=0; i<length; i++)
+  {
+    x_cell_pos[i] = X_START_CELL-i;
+    y_cell_pos[i] = Y_START_CELL;
+    setCell(x_cell_pos[i],y_cell_pos[i]);
+  }
 }
 
 void loop(void) {
