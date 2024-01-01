@@ -252,8 +252,8 @@ void move() {
       break;
   }
 
-  // check for boundary collision
-  if(new_x < 0 || new_x > X_MAX_CELL-1 || new_y < 0 || new_y > Y_MAX_CELL-1)
+  // check for crossed snake or boundary collision
+  if(isWithinSnake(new_x, new_y) || new_x < 0 || new_x > X_MAX_CELL-1 || new_y < 0 || new_y > Y_MAX_CELL-1)
   { // crashed
     motion = MOTION_NONE;
     alive = false;
@@ -261,15 +261,7 @@ void move() {
     return;
   }
 
-  //check for snake cross
-  if(isWithinSnake(new_x, new_y)) {
-      motion = MOTION_NONE;
-      alive = false;
-      drawSnake();
-      return;
-  }
-
-  // stack push
+    // stack push
   for(int i = length; i > 0; i--) {
     x_cell_pos[i] = x_cell_pos[i-1];
     y_cell_pos[i] = y_cell_pos[i-1];
