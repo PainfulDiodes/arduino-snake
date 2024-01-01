@@ -65,12 +65,18 @@ unsigned long lastMoveMillis;
 #define COUNT_TO_GROW 20
 int growCount = COUNT_TO_GROW;
 
+int fruit_x, fruit_y;
+
 void setup() {
   Serial.begin(9600);
+
+  randomSeed(analogRead(0));
   
   setupScreen();
 
   setupSnake();
+
+  dropFruit();
 
   lastMoveMillis = millis();
 }
@@ -195,6 +201,12 @@ void drawSnake() {
     c=-c;
   }
   setCell(x_cell_pos[length],y_cell_pos[length],ILI9341_BLACK);
+}
+
+void dropFruit() {
+  fruit_x = random(X_MAX_CELL);
+  fruit_y = random(Y_MAX_CELL);
+  setCell(fruit_x,fruit_y,ILI9341_RED);
 }
 
 void move() {
