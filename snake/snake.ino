@@ -48,8 +48,8 @@ Adafruit_FT6206 ts = Adafruit_FT6206();
 #define Y_START_CELL 12
 #define CELL_SIZE 10
 
-int motion = MOTION_NONE;
-bool alive = true;
+int motion;
+bool alive;
 
 // snake is held in 2 arrays for coordinates. First element is the head of the snake. 
 #define MAX_LENGTH 100
@@ -60,6 +60,9 @@ int length = 5;
 // milliseconds between moves
 #define MOVE_TIME_MILLIS 200
 unsigned long lastMoveMillis;
+
+// milliseconds before restarting game after game-over
+#define DEAD_TIME_MILLIS 5000
 
 int fruit_x, fruit_y, score;
 
@@ -104,6 +107,8 @@ void setupScreen() {
 void setupGame() {
   lastMoveMillis = millis();
   score = 0;
+  motion = MOTION_NONE;
+  alive = true;
 
   for(int i=0; i<=length; i++) // use <= as the position after the length is used to clean up the prior position of the snake
   {
@@ -179,9 +184,16 @@ void loop(void) {
     }  
   }
 
-  if(alive && millis()-lastMoveMillis >= MOVE_TIME_MILLIS) {
-    move();
-    lastMoveMillis = millis();
+  if(alive) {
+    if(millis()-lastMoveMillis >= MOVE_TIME_MILLIS) {
+      move();
+      lastMoveMillis = millis();
+    }
+  }
+  else {
+    if(millis()-lastMoveMillis >= DEAD_TIME_MILLIS) {
+      setupGame();
+    }
   }
 
 }
