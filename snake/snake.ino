@@ -61,10 +61,6 @@ int length = 5;
 #define MOVE_TIME_MILLIS 200
 unsigned long lastMoveMillis;
 
-// how many moves before growing the snake
-#define COUNT_TO_GROW 20
-int growCount = COUNT_TO_GROW;
-
 int fruit_x, fruit_y;
 
 void setup() {
@@ -252,29 +248,32 @@ void move() {
   { // crashed
     motion = MOTION_NONE;
     alive = false;
+    drawSnake();
+    return;
   }
 
   //check for snake cross
   if(isWithinSnake(new_x, new_y)) {
       motion = MOTION_NONE;
       alive = false;
+      drawSnake();
+      return;
   }
 
-  if(motion!=MOTION_NONE) {
-    // stack push
-    for(int i = length; i > 0; i--) {
-      x_cell_pos[i] = x_cell_pos[i-1];
-      y_cell_pos[i] = y_cell_pos[i-1];
-    }
+  // stack push
+  for(int i = length; i > 0; i--) {
+    x_cell_pos[i] = x_cell_pos[i-1];
+    y_cell_pos[i] = y_cell_pos[i-1];
+  }
 
-    // add new position to top
-    x_cell_pos[0] = new_x;
-    y_cell_pos[0] = new_y;
+  // add new position to top
+  x_cell_pos[0] = new_x;
+  y_cell_pos[0] = new_y;
 
-    if(--growCount<=0) {
-      growCount = COUNT_TO_GROW;
-      length++;
-    }
+  // eaten fruit?
+  if(new_x==fruit_x && new_y==fruit_y) {
+    length++;
+    dropFruit();
   }
 
   drawSnake();
