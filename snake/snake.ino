@@ -70,14 +70,7 @@ void setup() {
   
   setupScreen();
 
-  setupSnake();
-
-  dropFruit();
-
-  lastMoveMillis = millis();
-
-  score = 0;
-  printScore(ILI9341_WHITE);
+  setupGame();
 }
 
 void setupScreen() {
@@ -104,18 +97,24 @@ void setupScreen() {
   x = tft.readcommand8(ILI9341_RDSELFDIAG);
   Serial.print("Self Diagnostic: 0x"); Serial.println(x, HEX); 
 
-  tft.fillScreen(ILI9341_BLACK);
   tft.setRotation(1); 
 
 }
 
-void setupSnake() {
-  for(int i=0; i<=length; i++) // the position after the length is used to clean up the prior position of the snake
+void setupGame() {
+  lastMoveMillis = millis();
+  score = 0;
+
+  for(int i=0; i<=length; i++) // use <= as the position after the length is used to clean up the prior position of the snake
   {
     x_cell_pos[i] = X_START_CELL-i;
     y_cell_pos[i] = Y_START_CELL;
   }
+
+  tft.fillScreen(ILI9341_BLACK);
   drawSnake();
+  dropFruit();
+  printScore(ILI9341_WHITE);
 }
 
 void loop(void) {
