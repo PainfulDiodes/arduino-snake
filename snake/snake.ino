@@ -204,9 +204,23 @@ void drawSnake() {
 }
 
 void dropFruit() {
-  fruit_x = random(X_MAX_CELL);
-  fruit_y = random(Y_MAX_CELL);
-  setCell(fruit_x,fruit_y,ILI9341_RED);
+  while(true) {
+    fruit_x = random(X_MAX_CELL);
+    fruit_y = random(Y_MAX_CELL);
+    if(!isWithinSnake(fruit_x, fruit_y)) {
+      setCell(fruit_x,fruit_y,ILI9341_RED);
+      return;
+    }
+  }
+}
+
+bool isWithinSnake(int x, int y) {
+  for(int i = 0; i < length; i++) {
+    if(x == x_cell_pos[i] && y == y_cell_pos[i]) {
+      return true;
+    }
+  }
+  return false;
 }
 
 void move() {
@@ -241,11 +255,9 @@ void move() {
   }
 
   //check for snake cross
-  for(int i = 0; i < length; i++) {
-    if(new_x == x_cell_pos[i] && new_y == y_cell_pos[i]) {
+  if(isWithinSnake(new_x, new_y)) {
       motion = MOTION_NONE;
       alive = false;
-    }
   }
 
   if(motion!=MOTION_NONE) {
