@@ -61,7 +61,7 @@ int length = 5;
 #define MOVE_TIME_MILLIS 200
 unsigned long lastMoveMillis;
 
-int fruit_x, fruit_y;
+int fruit_x, fruit_y, score;
 
 void setup() {
   Serial.begin(9600);
@@ -75,6 +75,9 @@ void setup() {
   dropFruit();
 
   lastMoveMillis = millis();
+
+  score = 0;
+  printScore(ILI9341_WHITE);
 }
 
 void setupScreen() {
@@ -219,6 +222,12 @@ bool isWithinSnake(int x, int y) {
   return false;
 }
 
+void printScore(unsigned int color) {
+  tft.setCursor(10, 10);
+  tft.setTextColor(color);  tft.setTextSize(2);
+  tft.print(score);
+}
+
 void move() {
 
   if(motion == MOTION_NONE) return;
@@ -273,6 +282,9 @@ void move() {
   // eaten fruit?
   if(new_x==fruit_x && new_y==fruit_y) {
     length++;
+    printScore(ILI9341_BLACK);
+    score++;
+    printScore(ILI9341_WHITE);
     dropFruit();
   }
 
