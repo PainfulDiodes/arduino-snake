@@ -1,6 +1,6 @@
 # arduino-snake
 
-Snake classic arcade came on Arduino UNO R3 with Adafruit ILI9341 touchscreen TFT shield (capacitive)
+Classic Snake game for Arduino UNO R3 with Adafruit ILI9341 touchscreen TFT shield (capacitive)
 
 https://docs.arduino.cc/hardware/uno-rev3
 
